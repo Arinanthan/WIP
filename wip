@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MONITOR ERP 2.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
+body{background:#f4f6f9;}
+
+#homePage{display:block;}
+
+header{background:#2c3e50;color:white;padding:20px 0;position:fixed;width:100%;}
+nav{display:flex;justify-content:space-between;align-items:center;width:90%;margin:auto;}
+nav ul{display:flex;list-style:none;}
+nav ul li{margin-left:20px;}
+nav ul li a{color:white;text-decoration:none;}
+
+.hero{
+display:flex;
+justify-content:center;
+align-items:center;
+text-align:center;
+background:linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') center/cover;
+color:white;
+height:900px;
+}
+
+.btn{
+padding:12px 25px;
+background:#1abc9c;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+section{padding:60px 10%;text-align:center;}
+
+footer{
+background:#2c3e50;
+color:white;
+text-align:center;
+padding:20px;
+margin-top:40px;
+}
+
+#wipPage{
+display:none;
+background:linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') center/cover;
+min-height:100vh;
+padding:40px;
+color:white;
+}
+
+.container{
+background:rgba(0,0,0,0.65);
+padding:30px;
+width:450px;
+border-radius:10px;
+margin:auto;
+}
+
+button{padding:8px 15px;margin:5px;cursor:pointer;}
+
+#progressContainer{
+width:100%;
+border:1px solid #ccc;
+height:20px;
+margin-top:10px;
+background:white;
+}
+
+#progressBar{
+height:20px;
+width:0%;
+background:#1abc9c;
+transition:0.4s;
+}
+</style>
+</head>
+
+<body>
+
+<div id="homePage">
+
+<header>
+<nav>
+<h1><img src="logo.png" style="height:50px;"></h1>
+
+<ul>
+<li><a href="#homePage">Home</a></li>
+<li><a href="#about">About</a></li>
+<li><a href="#contact">Contact</a></li>
+</ul>
+
+</nav>
+</header>
+
+<div class="hero">
+<div>
+
+<h2 style="color:orange;">SAKTHI AUTO COMPONENT LIMITED</h2>
+
+<p style="font-size:35px;color:#A9A9A9;font-weight:bold;">WIP Report</p>
+
+<br><br>
+
+<button class="btn" onclick="openTool()">Get Started</button>
+
+</div>
+</div>
+
+<section id="about">
+<h2>About Us</h2>
+<p>ERP Automation and Reporting Tools</p>
+</section>
+
+<section id="contact">
+<h2>Contact</h2>
+<p>Phone : +919629034649</p>
+<p>Email : aritamil001@gmail.com</p>
+</section>
+
+<footer>
+<p>© 2026 MyWorld</p>
+</footer>
+
+</div>
+
+
+<div id="wipPage">
+
+<div class="container">
+
+<h2>WIP Stock Auto Report</h2>
+
+<label>Manufacturing File</label><br>
+<input type="file" id="mfgFile"><br><br>
+
+<label>Rejection File</label><br>
+<input type="file" id="rejFile"><br><br>
+
+<label>Workcenter File</label><br>
+<input type="file" id="workcenterFile"><br><br>
+
+<button onclick="processFiles()">Generate Report</button>
+
+<button onclick="downloadExcel()" id="downloadBtn" disabled>
+Download Excel
+</button>
+
+<button onclick="goHome()">Back</button>
+
+<div id="progressContainer">
+<div id="progressBar"></div>
+</div>
+
+<p id="progressText">Progress: 0%</p>
+
+</div>
+</div>
+
+<script>
+
+function openTool(){
+document.getElementById("homePage").style.display="none";
+document.getElementById("wipPage").style.display="block";
+}
+
+function goHome(){
+document.getElementById("homePage").style.display="block";
+document.getElementById("wipPage").style.display="none";
+}
+
+function updateProgress(p){
+document.getElementById("progressBar").style.width=p+"%";
+document.getElementById("progressText").innerText="Progress: "+p+"%";
+}
+
+function cleanPart(part){
+if(!part) return "";
+part=part.toString().trim();
+if(part.startsWith("0-0 ")) return part.replace("0-0 ","");
+return part;
+}
+
+let finalData=[];
+
+function readExcel(file,callback){
+
+let reader=new FileReader();
+
+reader.onload=function(e){
+
+let data=new Uint8Array(e.target.result);
+
+let workbook=XLSX.read(data,{type:'array'});
+
+let sheet=workbook.Sheets[workbook.SheetNames[0]];
+
+let json=XLSX.utils.sheet_to_json(sheet,{defval:""});
+
+callback(json);
+
+};
+
+reader.readAsArrayBuffer(file);
+
+}
+
+function processFiles(){
+
+let mfg=document.getElementById("mfgFile").files[0];
+let rej=document.getElementById("rejFile").files[0];
+let wc=document.getElementById("workcenterFile").files[0];
+
+if(!mfg||!rej||!wc){
+alert("Upload all files");
+return;
+}
+
+updateProgress(20);
+
+readExcel(mfg,function(mfgData){
+
+updateProgress(40);
+
+readExcel(rej,function(rejData){
+
+updateProgress(60);
+
+readExcel(wc,function(wcData){
+
+updateProgress(80);
+
+calculate(mfgData,rejData,wcData);
+
+updateProgress(100);
+
+});
+
+});
+
+});
+
+}
+
+function calculate(mfgData,rejData,wcData){
+
+finalData=[];
+
+let prevQty={};
+let pendingWip=0;
+let lastKey="";
+
+mfgData.sort((a,b)=>{
+
+let orderA=Number(a["Order no."])||0;
+let orderB=Number(b["Order no."])||0;
+
+let opA=Number(a["Op."])||0;
+let opB=Number(b["Op."])||0;
+
+return (orderA-orderB) ||
+(cleanPart(a["Level/Part number"]).localeCompare(cleanPart(b["Level/Part number"]))) ||
+(opA-opB);
+
+});
+
+mfgData.forEach(row=>{
+
+let partNo=cleanPart(row["Level/Part number"]);
+let orderNo=row["Order no."];
+let wc=row["WC"];
+let op=row["Op."];
+
+let rejectionRow=rejData.find(r=>
+r["M-order"]==orderNo &&
+Number(r["Op."])==Number(op) &&
+cleanPart(r["Part number"])==partNo
+);
+
+let wcRow = wcData.find(r => r["Work center"] == wc);
+let rejection=rejectionRow?Number(rejectionRow["Rejected qty"])||0:0;
+
+let reportQty=Number(row["Rep. qty"])||0;
+
+let finalQty=reportQty+rejection;
+let key = orderNo + "_" + partNo;
+
+if(prevQty[key] === undefined){
+    prevQty[key] = finalQty;
+    pendingWip = 0;
+    return;
+}
+
+let previous = prevQty[key];
+
+let wip = Math.max(previous - finalQty, 0);
+
+prevQty[key] = finalQty;
+
+let dept = wcRow ? wcRow["Name"] : "";
+let category = wcRow ? wcRow["Category"] : "";
+
+if(!category || category.trim() == ""){
+    pendingWip += wip;
+    return;
+}
+
+wip = wip + pendingWip;
+pendingWip = 0;
+
+if(wip > 0){
+    finalData.push({
+        "Order No":orderNo,
+        "Op No":op,
+        "Part Number":partNo,
+        "Work Center":wc,
+        "Department":dept,
+        "Category":category,
+        "WIP Stock":wip
+    });
+}
+
+});
+
+document.getElementById("downloadBtn").disabled=false;
+
+alert("Report Generated!");
+
+}
+
+/* ADD PIVOT FUNCTION HERE */
+function createPivotMatrix(){
+
+let parts=[...new Set(finalData.map(r=>r["Part Number"]))];
+let wcs=[...new Set(finalData.map(r=>r["Work Center"]))];
+
+let matrix=[];
+
+let header=["Part Number"];
+wcs.forEach(w=>header.push(w));
+header.push("PART WISE GRNAD TOTAL");
+
+matrix.push(header);
+
+parts.forEach(p=>{
+
+let row=[p];
+let rowTotal=0;
+
+wcs.forEach(w=>{
+
+let val=finalData
+.filter(r=>r["Part Number"]==p && r["Work Center"]==w)
+.reduce((s,r)=>s+Number(r["WIP Stock"]),0);
+
+row.push(val);
+rowTotal+=val;
+
+});
+
+row.push(rowTotal);
+matrix.push(row);
+
+});
+
+let totalRow=["WC WISE GRAND TOTAL"];
+
+for(let i=0;i<wcs.length;i++){
+
+let colTotal=0;
+
+parts.forEach(p=>{
+
+let val=finalData
+.filter(r=>r["Part Number"]==p && r["Work Center"]==wcs[i])
+.reduce((s,r)=>s+Number(r["WIP Stock"]),0);
+
+colTotal+=val;
+
+});
+
+totalRow.push(colTotal);
+
+}
+
+let grandTotal=totalRow.slice(1).reduce((a,b)=>a+b,0);
+totalRow.push(grandTotal);
+
+matrix.push(totalRow);
+
+return matrix;
+
+}
+
+/* DOWNLOAD FUNCTION */
+function downloadExcel(){
+
+if(finalData.length===0){
+alert("No Data");
+return;
+}
+
+let wb=XLSX.utils.book_new();
+
+/* Sheet 1 */
+
+let sheet1=XLSX.utils.json_to_sheet(finalData);
+XLSX.utils.book_append_sheet(wb,sheet1,"WIP_Details");
+
+/* Sheet 2 Pivot */
+
+let pivot=createPivotMatrix();
+
+let sheet2=XLSX.utils.aoa_to_sheet(pivot);
+
+XLSX.utils.book_append_sheet(wb,sheet2,"WIP_Pivot");
+
+XLSX.writeFile(wb,"WIP_Report.xlsx");
+
+}
+
+</script>
+
+</body>
+</html>
