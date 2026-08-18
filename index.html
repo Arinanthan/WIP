@@ -1,413 +1,713 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ta">
 <head>
-<meta charset="UTF-8">
-<title>Pending Qty Report</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nutri Care - Mobile Optimized (Gobi)</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+        body {
+            background: #f1f5f9;
+            color: #1e293b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-<style>
-body{font-family:Arial;background:#f4f6f9;padding:20px}
-h2{text-align:center}
+        /* 100% Mobile Screen Responsive Container */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            background: #f8fafc;
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.08);
+        }
 
-.controls{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-margin:10px 0;
-}
+        @media (min-width: 481px) {
+            .app-container {
+                min-height: 92vh;
+                max-height: 92vh;
+                border-radius: 24px;
+                overflow-y: auto;
+                border: 8px solid #0f172a;
+            }
+            .app-container::-webkit-scrollbar {
+                width: 4px;
+            }
+            .app-container::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 4px;
+            }
+        }
 
-input,button{padding:8px}
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
 
-button{
-cursor:pointer;
-background:#1976d2;
-color:#fff;
-border:none;
-}
+        .logo {
+            font-size: 18px;
+            font-weight: 800;
+            color: #16a34a;
+        }
 
-table{
-border-collapse:collapse;
-width:100%;
-background:#fff;
-}
+        .header-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
 
-th,td{
-border:1px solid #ccc;
-padding:8px;
-text-align:center;
-}
+        .cart-badge {
+            background: #16a34a;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
 
-th{background:#1976d2;color:#fff}
+        .admin-toggle-btn {
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
 
-.filter-row input{width:95%;padding:5px}
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px 16px;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
 
-tr:hover{background:#e3f2fd;cursor:pointer}
+        .tagline {
+            background: #16a34a;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
 
-#detailModal{
-display:none;
-position:fixed;
-top:5%;
-left:5%;
-width:90%;
-height:90%;
-background:#fff;
-border:2px solid #333;
-overflow:auto;
-padding:10px;
-z-index:1000;
-}
+        h1 {
+            font-size: 20px;
+            color: #15803d;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
 
-.close-btn, .download-btn{
-padding:8px 12px;
-border:none;
-cursor:pointer;
-margin-right:10px;
-}
+        p {
+            font-size: 12px;
+            color: #4b5563;
+            margin-bottom: 12px;
+        }
 
-.close-btn{background:red;color:#fff}
-.download-btn{background:green;color:#fff}
+        .features-bar {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            background: #ffffff;
+            padding: 10px;
+            margin: -10px 16px 15px 16px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid #dcfce7;
+            width: calc(100% - 32px);
+        }
 
-.total-row{
-background:blue;
-color:#fff;
-font-weight:bold;
-}
-</style>
+        .features-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .feature-badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #15803d;
+            background: #f0fdf4;
+            padding: 5px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        .scene {
+            width: 100%;
+            height: 150px;
+            background: #ffffff;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 15px rgba(22, 163, 74, 0.08);
+            margin-bottom: 15px;
+            border: 2px dashed #86efac;
+        }
+
+        .road {
+            position: absolute;
+            bottom: 15px;
+            width: 100%;
+            height: 3px;
+            background: #cbd5e1;
+        }
+
+        .van {
+            position: absolute;
+            bottom: 16px;
+            left: -80px;
+            font-size: 38px;
+            animation: driveVan 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes driveVan {
+            0% { left: -80px; }
+            35% { left: 110px; }
+            70% { left: 110px; }
+            100% { left: 400px; }
+        }
+
+        .kids-container {
+            position: absolute;
+            bottom: 18px;
+            left: 140px;
+            display: flex;
+            gap: 6px;
+            animation: kidsSequence 6s ease-in-out infinite;
+        }
+
+        .kid {
+            font-size: 24px;
+        }
+
+        @keyframes kidsSequence {
+            0% { opacity: 0; transform: translateX(-20px) scale(0.7); }
+            30% { opacity: 1; transform: translateX(0) scale(0.8); filter: grayscale(100%) brightness(0.8); }
+            45% { transform: translateX(0) scale(0.8) translateY(4px); filter: grayscale(100%) brightness(0.8); }
+            55% { transform: translateX(0) scale(1.1) translateY(-10px); filter: grayscale(0%) saturate(200%); }
+            80% { opacity: 1; transform: translateX(20px) scale(1.1) translateY(0); filter: grayscale(0%) saturate(200%); }
+            100% { opacity: 0; transform: translateX(60px) scale(1); }
+        }
+
+        .floating-fruits {
+            position: absolute;
+            top: 10px;
+            display: flex;
+            gap: 10px;
+            animation: floatFruits 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatFruits {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-5px); }
+        }
+
+        .perfect-for {
+            padding: 15px 16px;
+            background: #ffffff;
+            text-align: center;
+        }
+
+        .perfect-for h3 {
+            font-size: 14px;
+            color: #15803d;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .tags-grid {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .target-tag {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            color: #15803d;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 10px;
+        }
+
+        .menu-section {
+            padding: 20px 16px;
+        }
+
+        .menu-section h2 {
+            text-align: center;
+            font-size: 20px;
+            color: #15803d;
+            margin-bottom: 20px;
+        }
+
+        .menu-category {
+            margin-bottom: 25px;
+        }
+
+        .menu-category h3 {
+            font-size: 14px;
+            color: #16a34a;
+            margin-bottom: 12px;
+            border-left: 3px solid #16a34a;
+            padding-left: 6px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            overflow: hidden;
+            display: flex;
+            flex-direction: row;
+            border: 1px solid #e2e8f0;
+        }
+
+        .menu-img-container {
+            width: 95px;
+            min-width: 95px;
+            height: 95px;
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+
+        .menu-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .menu-card-content {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: space-between;
+        }
+
+        .item-info h4 {
+            font-size: 13px;
+            color: #1e293b;
+            margin-bottom: 2px;
+        }
+
+        .item-info p {
+            font-size: 10px;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .card-footer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 14px;
+            font-weight: 800;
+            color: #16a34a;
+        }
+
+        .add-btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: flex-end;
+            z-index: 2000;
+        }
+
+        .cart-drawer {
+            background: white;
+            width: 100%;
+            max-width: 340px;
+            height: 100%;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.15);
+            overflow-y: auto;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 8px;
+        }
+
+        .cart-header h3 {
+            color: #15803d;
+            font-size: 16px;
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .cart-items-container {
+            flex-grow: 1;
+            margin-bottom: 10px;
+        }
+
+        .cart-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 11px;
+        }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 3px;
+        }
+
+        .qty-btn {
+            background: #e2e8f0;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .admin-panel {
+            display: none;
+            background: #1e293b;
+            color: white;
+            padding: 15px;
+            margin: 12px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
+        .admin-panel h2 {
+            color: #4ade80;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card {
+            background: #0f172a;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .stat-card span {
+            font-size: 14px;
+            font-weight: 700;
+            color: #4ade80;
+        }
+
+        .order-list-box {
+            background: #0f172a;
+            padding: 8px;
+            border-radius: 6px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .order-item-row {
+            padding: 5px 0;
+            border-bottom: 1px solid #1e293b;
+            font-size: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .invoice-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 16px;
+        }
+
+        .invoice-card {
+            background: white;
+            padding: 16px;
+            width: 100%;
+            max-width: 320px;
+            border-radius: 12px;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .invoice-card h3 {
+            color: #15803d;
+            margin-bottom: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .invoice-details {
+            font-size: 11px;
+            color: #475569;
+            margin-bottom: 12px;
+            border-bottom: 2px dashed #cbd5e1;
+            padding-bottom: 8px;
+        }
+
+        .checkout-box {
+            background: #ffffff;
+            border-top: 2px solid #16a34a;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+            margin-top: auto;
+        }
+
+        .checkout-box input, .checkout-box select {
+            width: 100%;
+            padding: 9px;
+            margin: 6px 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .order-whatsapp-btn {
+            background: #25D366;
+            color: white;
+            text-decoration: none;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 20px;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+            border: none;
+            cursor: pointer;
+            margin-top: 8px;
+            width: 100%;
+        }
+
+        .contact-section {
+            background: #1e293b;
+            color: white;
+            padding: 20px 16px;
+            text-align: center;
+        }
+
+        .contact-section h2 {
+            font-size: 15px;
+            color: #4ade80;
+            margin-bottom: 8px;
+        }
+
+        .phones {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .address {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            background: #0f172a;
+            color: #94a3b8;
+            text-align: center;
+            padding: 12px;
+            font-size: 10px;
+            border-top: 1px solid #334155;
+        }
+    </style>
 </head>
-
 <body>
 
-<h2>Partwise vs Supplierwise Pending Qty Report</h2>
-
-<div class="controls">
-<input type="file" id="fileInput" accept=".xlsx,.xls" />
-<input type="text" id="globalSearch" placeholder="Search all columns..." />
-
-<button onclick="exportFullReport()">Export Excel (2 Sheets)</button>
-</div>
-
-<table id="reportTable">
-<thead>
-<tr>
-<th>Part Number</th>
-<th>Part Name</th>
-<th>Supplier</th>
-<th>Supplier Name</th>
-<th>Shipped Qty</th>
-<th>Arrived Qty</th>
-<th>Pending Qty</th>
-</tr>
-
-<tr class="filter-row">
-<th><input onkeyup="applyFilters()" data-col="0"></th>
-<th><input onkeyup="applyFilters()" data-col="1"></th>
-<th><input onkeyup="applyFilters()" data-col="2"></th>
-<th><input onkeyup="applyFilters()" data-col="3"></th>
-<th><input onkeyup="applyFilters()" data-col="4"></th>
-<th><input onkeyup="applyFilters()" data-col="5"></th>
-<th><input onkeyup="applyFilters()" data-col="6"></th>
-</tr>
-</thead>
-
-<tbody></tbody>
-</table>
-
-<!-- DETAIL MODAL -->
-<div id="detailModal">
-
-    <button class="close-btn" onclick="closeModal()">Close</button>
-    <button class="download-btn" onclick="downloadDetail()">⬇ Download Detail</button>
-
-    <h3>Purchase Order Wise Pending View</h3>
-
-    <table id="detailTable">
-        <thead></thead>
-        <tbody></tbody>
-    </table>
-</div>
-
-<script>
-
-let finalData = [];
-let rawData = [];
-let currentDetailData = [];
-
-/* FILE LOAD */
-document.getElementById('fileInput').addEventListener('change', handleFile);
-document.getElementById('globalSearch').addEventListener('keyup', applyFilters);
-
-function handleFile(e) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const ws = workbook.Sheets[workbook.SheetNames[0]];
-        rawData = XLSX.utils.sheet_to_json(ws);
-
-        processData(rawData);
-    };
-
-    reader.readAsArrayBuffer(file);
-}
-
-/* SUMMARY */
-function processData(data) {
-
-    let result = {};
-
-    data.forEach(r => {
-
-        let key = r.PartNumber + "-" + r.Supplier;
-
-        let shipped = Number(r.ShippedQty || 0);
-        let arrived = Number(r.ArrivedQty || 0);
-
-        if (!result[key]) {
-            result[key] = {
-                part: r.PartNumber,
-                partName: r.PartName,
-                supplier: r.Supplier,
-                supplierName: r.SupplierName,
-                shipped: 0,
-                arrived: 0
-            };
-        }
-
-        result[key].shipped += shipped;
-        result[key].arrived += arrived;
-    });
-
-    finalData = Object.values(result).map(x => ({
-        ...x,
-        pending: x.shipped - x.arrived
-    }));
-
-    displayData(finalData);
-}
-
-/* DISPLAY */
-function displayData(data) {
-
-    const tbody = document.querySelector("#reportTable tbody");
-    tbody.innerHTML = "";
-
-    let totalS = 0, totalA = 0, totalP = 0;
-
-    data.forEach(r => {
-
-        totalS += r.shipped;
-        totalA += r.arrived;
-        totalP += r.pending;
-
-        let tr = document.createElement("tr");
-
-        tr.innerHTML = `
-        <td>${r.part}</td>
-        <td>${r.partName}</td>
-        <td>${r.supplier}</td>
-        <td>${r.supplierName}</td>
-        <td>${r.shipped}</td>
-        <td>${r.arrived}</td>
-        <td style="color:red;font-weight:bold">${r.pending}</td>
-        `;
-
-        tr.onclick = () => showDetails(r.part, r.supplier);
-
-        tbody.appendChild(tr);
-    });
-
-    let totalRow = document.createElement("tr");
-    totalRow.className = "total-row";
-
-    totalRow.innerHTML = `
-        <td colspan="4">GRAND TOTAL</td>
-        <td>${totalS}</td>
-        <td>${totalA}</td>
-        <td>${totalP}</td>
-    `;
-
-    tbody.appendChild(totalRow);
-}
-
-/* FILTER */
-function applyFilters() {
-
-    let filtered = [...finalData];
-
-    const global = document.getElementById('globalSearch').value.toLowerCase();
-
-    if (global) {
-        filtered = filtered.filter(row =>
-            Object.values(row).some(val =>
-                String(val).toLowerCase().includes(global)
-            )
-        );
-    }
-
-    document.querySelectorAll(".filter-row input").forEach(input => {
-
-        let col = input.dataset.col;
-        let val = input.value.toLowerCase();
-
-        if (val) {
-            filtered = filtered.filter(row => {
-                let fields = [row.part,row.partName,row.supplier,row.supplierName,row.shipped,row.arrived,row.pending];
-                return String(fields[col]).toLowerCase().includes(val);
-            });
-        }
-    });
-
-    displayData(filtered);
-}
-
-/* DETAIL */
-function showDetails(part, supplier) {
-
-    let grouped = {};
-
-    rawData.forEach(r => {
-
-        if (r.PartNumber != part || r.Supplier != supplier) return;
-
-        let po = r.PurchaseOrderNumber || "NO_PO";
-
-        let shipped = Number(r.ShippedQty || 0);
-        let arrived = Number(r.ArrivedQty || 0);
-
-        if (!grouped[po]) {
-            grouped[po] = {
-                PurchaseOrderNumber: po,
-                ManufacturingOrderNumber: r.ManufacturingOrderNumber,
-                PartNumber: r.PartNumber,
-                PartName: r.PartName,
-                Supplier: r.Supplier,
-                SupplierName: r.SupplierName,
-                ShippedQty: 0,
-                ArrivedQty: 0
-            };
-        }
-
-        grouped[po].ShippedQty += shipped;
-        grouped[po].ArrivedQty += arrived;
-    });
-
-    let result = Object.values(grouped).map(x => ({
-        ...x,
-        PendingQty: x.ShippedQty - x.ArrivedQty
-    })).filter(x => x.PendingQty !== 0);
-
-    currentDetailData = result;
-
-    const thead = document.querySelector("#detailTable thead");
-    const tbody = document.querySelector("#detailTable tbody");
-
-    thead.innerHTML = "";
-    tbody.innerHTML = "";
-
-    if (!result.length) {
-        thead.innerHTML = "<tr><th>No Data</th></tr>";
-        document.getElementById("detailModal").style.display = "block";
-        return;
-    }
-
-    let headers = Object.keys(result[0]);
-
-    let h = "<tr>";
-    headers.forEach(x => h += `<th>${x}</th>`);
-    h += "</tr>";
-    thead.innerHTML = h;
-
-    let totalS = 0, totalA = 0, totalP = 0;
-
-    result.forEach(r => {
-
-        totalS += r.ShippedQty;
-        totalA += r.ArrivedQty;
-        totalP += r.PendingQty;
-
-        let tr = "<tr>";
-
-        headers.forEach(hd => {
-            tr += `<td>${r[hd]}</td>`;
-        });
-
-        tr += "</tr>";
-        tbody.innerHTML += tr;
-    });
-
-    document.getElementById("detailModal").style.display = "block";
-}
-
-/* EXPORT WITH PIVOT */
-function exportFullReport() {
-
-    if (!rawData.length) return;
-
-    const summarySheet = XLSX.utils.json_to_sheet(finalData);
-
-    let pivotMap = {};
-    let suppliers = [...new Set(rawData.map(r => r.SupplierName))];
-
-    rawData.forEach(r => {
-
-        let rowKey = r.PartNumber + " | " + r.PartName;
-        let colKey = r.SupplierName;
-
-        let shipped = Number(r.ShippedQty || 0);
-        let arrived = Number(r.ArrivedQty || 0);
-        let pending = shipped - arrived;
-
-        if (!pivotMap[rowKey]) pivotMap[rowKey] = {};
-        if (!pivotMap[rowKey][colKey]) pivotMap[rowKey][colKey] = 0;
-
-        pivotMap[rowKey][colKey] += pending;
-    });
-
-    let pivotData = [];
-
-    Object.keys(pivotMap).forEach(row => {
-
-        let obj = { "Part - Name": row };
-
-        suppliers.forEach(sup => {
-            obj[sup] = pivotMap[row][sup] || 0;
-        });
-
-        pivotData.push(obj);
-    });
-
-    const pivotSheet = XLSX.utils.json_to_sheet(pivotData);
-
-    let wb = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(wb, summarySheet, "Summary");
-    XLSX.utils.book_append_sheet(wb, pivotSheet, "Pivot");
-
-    XLSX.writeFile(wb, "Pending_Report.xlsx");
-}
-
-/* DOWNLOAD DETAIL */
-function downloadDetail() {
-
-    if (!currentDetailData.length) return;
-
-    let ws = XLSX.utils.json_to_sheet(currentDetailData);
-    let wb = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(wb, ws, "Detail");
-    XLSX.writeFile(wb, "PO_Detail.xlsx");
-}
-
-/* CLOSE */
-function closeModal() {
-    document.getElementById("detailModal").style.display = "none";
-}
-
-</script>
-
-</body>
-</html>
+    <div class="app-container">
+        <header>
+            <div class="logo">🌿 NUTRI CARE</div>
+            <div class="header-actions">
+                <div class="cart-badge" id="cart-count" onclick="openCartModal()">🛒 Cart (0)</div>
+                <button class="admin-toggle-btn" onclick="toggleAdminPanel()">⚙️ Admin</button>
+            </div>
+        </header>
+
+        <!-- Admin Dashboard Panel -->
+        <div class="admin-panel" id="adminPanel">
+            <h2>🛠️ Management Suite</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>Orders Today</h4>
+                    <span id="stat-orders">0</span>
+                </div>
+                <div class="stat-card">
+                    <h4>Revenue</h4>
+                    <span id="stat-revenue">₹0</span>
+                </div>
+            </div>
+            <p style="color: #94a3b8; margin-bottom: 6px;">Live Order Log:</p>
+            <div class="order-list-box" id="adminOrderLog">
+                <p style="color: #64748b; font-size: 10px;">No orders yet.</p>
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="tagline">FRESH • HEALTHY • READY TO EAT</div>
+            <h1>Fresh Fruit Plates & Healthy Juices</h1>
+            <p>Delivered fresh to your doorstep in Gobi & surrounding locations!</p>
+
+            <div class="features-bar">
+                <div class="feature-badge">🍏 Fresh Quality</div>
+                <div class="feature-badge">🔪 Daily Cut</div>
+                <div class="feature-badge">🛡️ Hygienic</div>
+                <div class="feature-badge">📦 Sealed Pack</div>
+                <div class="feature-badge">🚚 Home Delivery</div>
+            </div>
+
+            <div class="scene">
+                <div class="floating-fruits">
+                    <span style="font-size: 20px;">🍎</span>
+                    <span style="font-size: 20px;">🍌</span>
+                    <span style="font-size: 20px;">🍓</span>
+                    <span style="font-size: 20px;">🍊</span>
+                </div>
+                <div class="road"></div>
+                <div class="van">🚐</div>
+                <div class="kids-container">
+                    <div class="kid">👦🏽</div>
+                    <div class="kid">👧🏽</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Perfect For Section -->
+        <section class="perfect-for">
+            <h3>✨ Perfect For Everyone ✨</h3>
+            <div class="tags-grid">
+                <div class="target-tag">Parents Care</div>
+                <div class="target-tag">Gym Members</div>
+                <div class="target-tag">Weight Loss</div>
+                <div class="target-tag">Fat Loss</div>
+                <div class="target-tag">Muscle Gain</div>
+                <div class="target-tag">Athletes</div>
+            </div>
+        </section>
+
+        <!-- Menu Section -->
+        <section class="menu-section" id="menu">
+            <h2>OUR MENU</h2>
+
+            <!-- Fresh Fruit Plates Menu -->
+            <div class="menu-category">
+                <h3>🍽️ FRESH FRUIT PLATES MENU</h3>
+                <div class="menu-grid">
+                    
+                    <!-- Health Plate -->
+                    <div class="menu-card">
+                        <div class="menu-img-container">
+                            <img src="https://images.unsplash.com/photo-1519996521430-025f992e85a0?w=500&auto=format&fit=crop&q=60" alt="Health Plate">
+                        </div>
+                        <div class="menu-card-content">
+                            <div class="item-info">
+                                <h4>Health Plate</h4>
+                                <p>200g • Mixed fruits, corn, sprouts</p>
+                            </div>
+                            <div class="card-footer-row">
+                                <span class="price">₹50</span>
+                                <button class="add-btn" onclick="addToCart('Health Plate (200g)', 50)">+ Add</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regular Fruit Plate -->
+                    <div class="menu-card">
+                        <div class="menu-img-container">
+                            <img src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=500&auto=format&fit=crop&q=60" alt="Regular Fruit Plate">
+                        </div>
+                        <div class="menu-card-content">
+              
